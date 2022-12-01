@@ -63,6 +63,8 @@ class ClairChecker:
                         file_path = os.path.join(folder_name, filename)
                         if os.path.getsize(file_path) == 0:
                             logging.warning(f'Clair report file {filename} is zero size. Skipping archiving')
+                            # Removing empty report file
+                            os.remove(file_path)
                             continue
                         logging.info(f'Archiving file: {file_path}')
                         suc_archived_files_count += 1
