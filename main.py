@@ -99,7 +99,7 @@ def main():
                          report_format=args.clair_reports_format,
                          binary_path=args.clair_binary_path)
     # Create new worker pool for spawned processes and limit bucket size
-    wp = WorkerPool(limit=args.clair_sync_num)
+    wp = WorkerPool(limit=args.clair_async_num)
     # Start image checking with clair
     for image_name, image_tag in nexus_results.items():
         wp.add_to_pool(clair.scan, (clair.get_image_full_path(ic.get_server_url(), image_name, image_tag),
