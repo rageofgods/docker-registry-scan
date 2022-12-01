@@ -34,6 +34,10 @@ def get_args() -> argparse.Namespace:
                         dest="clair_binary_path",
                         default="clairctl",
                         help="Path to clair binary control file 'clairctl'")
+    parser.add_argument("-a", "--clair-async-num",
+                        dest="clair_async_num",
+                        default="3",
+                        help="Set clair maximum async workers")
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -44,9 +48,6 @@ def get_args() -> argparse.Namespace:
         parser.print_help(sys.stderr)
         sys.exit(1)
     if not args.clair_server:
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-    if not args.clair_reports_path:
         parser.print_help(sys.stderr)
         sys.exit(1)
     if not args.nexus_repo:
@@ -98,7 +99,7 @@ def main():
                          report_format=args.clair_reports_format,
                          binary_path=args.clair_binary_path)
     # Create new worker pool for spawned processes and limit bucket size
-    wp = WorkerPool(limit=5)
+    wp = WorkerPool(limit=args.clair_sync_num)
     # Start image checking with clair
     for image_name, image_tag in nexus_results.items():
         wp.add_to_pool(clair.scan, (clair.get_image_full_path(ic.get_server_url(), image_name, image_tag),
