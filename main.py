@@ -98,7 +98,7 @@ def get_registry_by_repo_name(mapping_config_name: str, repo_name: str):
                     result = registry
                     break
         except KeyError:
-            logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
+            logging.error(f"Can't find 'registryMap' section in mapping config: {mapping_config_name}")
             sys.exit(1)
 
         if result == '':
