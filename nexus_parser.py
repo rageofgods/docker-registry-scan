@@ -20,18 +20,18 @@ class NexusParser:
     def init_pool_manager(self, retries) -> urllib3.poolmanager.PoolManager:
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
-    def get_comps(self, continuation_token='') -> urllib3.request.RequestMethods:
+    def __get_comps(self, continuation_token='') -> urllib3.request.RequestMethods:
         if self.server_user == '' and self.server_pass == '':
-            self.setup_headers([self.set_accept_header()])
+            self.__setup_headers([self.__set_accept_header()])
             logging.debug('No auth credentials provided. Switching to anonymous')
         else:
-            self.setup_headers([self.set_accept_header(), self.set_auth_header()])
+            self.__setup_headers([self.__set_accept_header(), self.__set_auth_header()])
             logging.debug('Setting up auth headers')
 
         if not continuation_token:
             try:
                 return self.pool_manager.request('GET',
-                                                 f'{self.get_server_url().strip("/")}{self.repo_comp_urn()}',
+                                                 f'{self.__get_server_url().strip("/")}{self.__repo_comp_urn()}',
                                                  headers=self.http_headers)
             except urllib3.exceptions.HTTPError:
                 # TODO: handle errors
@@ -39,14 +39,14 @@ class NexusParser:
         else:
             try:
                 return self.pool_manager.request('GET',
-                                                 f'{self.get_server_url().strip("/")}'
-                                                 f'{self.repo_comp_urn(continuation_token)}',
+                                                 f'{self.__get_server_url().strip("/")}'
+                                                 f'{self.__repo_comp_urn(continuation_token)}',
                                                  headers=self.http_headers)
             except urllib3.exceptions.HTTPError:
                 # TODO: handle errors
                 logging.error('HTTP_ERROR')
 
-    def get_server_url(self) -> str:
+    def __get_server_url(self) -> str:
         url = urlparse(self.server_name)
         if not url.scheme:
             return f'{self.DEFAULT_SCHEME}://{url.geturl()}'
@@ -57,9 +57,9 @@ class NexusParser:
         resp: urllib3.request.RequestMethods
 
         if not continuation_token:
-            resp = self.get_comps()
+            resp = self.__get_comps()
         else:
-            resp = self.get_comps(continuation_token)
+            resp = self.__get_comps(continuation_token)
 
         if resp.status == 200:
             j = json.loads(resp.data.decode('utf-8'))
@@ -88,17 +88,17 @@ class NexusParser:
 
         return self.docker_images
 
-    def setup_headers(self, headers: list):
+    def __setup_headers(self, headers: list):
         for h in headers:
             self.http_headers = self.http_headers | h
 
-    def set_auth_header(self) -> urllib3.util.request:
+    def __set_auth_header(self) -> urllib3.util.request:
         return urllib3.make_headers(basic_auth=f'{self.server_user}:{self.server_pass}')
 
-    def set_accept_header(self) -> dict:
+    def __set_accept_header(self) -> dict:
         return {'accept': 'application/json'}
 
-    def repo_comp_urn(self, continuation_token='') -> str:
+    def __repo_comp_urn(self, continuation_token='') -> str:
         if not continuation_token:
             return f'/{self.API_URL_BASE}components?repository={self.repo_name}'
         return f'/{self.API_URL_BASE}components?repository={self.repo_name}&continuationToken={continuation_token}'
