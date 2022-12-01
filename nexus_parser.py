@@ -84,6 +84,7 @@ class NexusParser:
                     return self.docker_images
         else:
             logging.error(f'Wrong http server status: {resp.status}')
+            logging.error(f'Server respond with answer: {resp.data}')
 
         return self.docker_images
 
