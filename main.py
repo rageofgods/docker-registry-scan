@@ -5,6 +5,7 @@ import os
 import argparse
 import sys
 from loguru import logger as logging
+import yaml
 
 
 def get_args() -> argparse.Namespace:
@@ -38,6 +39,10 @@ def get_args() -> argparse.Namespace:
                         dest="clair_async_num",
                         default="3",
                         help="Set clair maximum async workers")
+    parser.add_argument("-m", "--mapping-config",
+                        dest="mapping_config",
+                        default="registry_map.yaml",
+                        help="Path to yaml config with registry name to repository name mapping")
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -78,6 +83,32 @@ def get_env_vars() -> dict:
     return result
 
 
+def get_registry_by_repo_name(mapping_config_name: str, repo_name: str):
+    with open(mapping_config_name, 'r') as stream:
+        try:
+            parsed_yaml = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            logging.error(f"Can't parse yaml file: {exc}")
+
+        result = ''
+        try:
+            registry_map = parsed_yaml['registryMap']
+            for repo, registry in registry_map.items():
+                if repo == repo_name:
+                    result = registry
+                    break
+        except KeyError:
+            logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
+            sys.exit(1)
+
+        if result == '':
+            logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
+            sys.exit(1)
+
+        logging.info(f"found registry mapping for repo name {repo_name}: {result}")
+        return result
+
+
 def main():
     # Get valuable environment variables
     env_vars = get_env_vars()
@@ -102,8 +133,10 @@ def main():
     wp = WorkerPool(limit=int(args.clair_async_num))
     # Start image checking with clair
     for image_name, image_tag in nexus_results.items():
-        wp.add_to_pool(clair.scan, (clair.get_image_full_path(ic.get_server_url(), image_name, image_tag),
-                                    clair.gen_report_file_name(image_name, image_tag)))
+        wp.add_to_pool(clair.scan,
+                       (clair.get_image_full_path(
+                           get_registry_by_repo_name(args.mapping_config, args.nexus_repo), image_name, image_tag),
+                        clair.gen_report_file_name(image_name, image_tag)))
     # Clean up
     wp.end_pool()
     # Archiving reports
