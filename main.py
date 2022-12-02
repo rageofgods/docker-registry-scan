@@ -128,7 +128,8 @@ def main():
     ic.setup_headers()
     # Query Nexus for interesting data
     nexus_results = ic.get_all_comps()
-    logging.debug(f'Total images found: {len(nexus_results)}')
+    logging.debug(f'Total images found: {len({list(value.keys())[0] for (key, value) in nexus_results.items()})}')
+    logging.debug(f'Total image tags found: {len(nexus_results)}')
     logging.info('Analyzing complete.')
 
     # Init clair constructor
