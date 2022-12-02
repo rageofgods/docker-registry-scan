@@ -125,6 +125,7 @@ def main():
     ic.init_pool_manager(retries=3)
     logging.info('Start analyzing remote docker registry...')
     nexus_results = ic.get_all_comps()
+    logging.debug(f'Total images found: {len(nexus_results)}')
     logging.info('Analyzing complete.')
 
     # Init clair constructor
@@ -136,11 +137,13 @@ def main():
     # Create new worker pool for spawned processes and limit bucket size
     wp = WorkerPool(limit=int(args.clair_async_num))
     # Start image checking with clair
-    for image_name, image_tag in nexus_results.items():
+    for image_name_tag in nexus_results.values():
+        image_name = list(image_name_tag.keys())[0]
+        tag_name = list(image_name_tag.values())[0]
         wp.add_to_pool(clair.scan,
                        (clair.get_image_full_path(
-                           get_registry_by_repo_name(args.mapping_config, args.nexus_repo), image_name, image_tag),
-                        clair.gen_report_file_name(image_name, image_tag)))
+                           get_registry_by_repo_name(args.mapping_config, args.nexus_repo), image_name, tag_name),
+                        clair.gen_report_file_name(image_name, tag_name)))
     # Clean up
     wp.end_pool()
     # Archiving reports

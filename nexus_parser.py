@@ -68,7 +68,7 @@ class NexusParser:
                     try:
                         if item['format'] == 'docker':
                             logging.debug(f"Adding image: {item['name']}:{item['version']}")
-                            self.docker_images[item['name']] = item['version']
+                            self.docker_images[item['id']] = {item['name']: item['version']}
                         else:
                             logging.error(f'wrong format for target component: {item["format"]}')
                             return self.docker_images
@@ -87,7 +87,6 @@ class NexusParser:
             logging.error(f'Wrong http server status: {resp.status}')
             logging.error(f'Server respond with answer: {resp.data}')
 
-        logging.debug(f'Total images found: {len(self.docker_images)}')
         return self.docker_images
 
     def __setup_headers(self, headers: list):
