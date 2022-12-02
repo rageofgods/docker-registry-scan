@@ -28,7 +28,7 @@ class ClairChecker:
         cmd = f'{self.binary_path} ' \
               f'{action} --out={self.report_format} ' \
               f'--host {self.server_name} {image_to_scan} > {self.__get_reports_path()}/{report_file_name}'
-        logging.error(cmd)
+        logging.debug(cmd)
 
         child = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         child.wait()
