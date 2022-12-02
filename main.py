@@ -84,29 +84,33 @@ def get_env_vars() -> dict:
 
 
 def get_registry_by_repo_name(mapping_config_name: str, repo_name: str):
-    with open(mapping_config_name, 'r') as stream:
+    parsed_yaml = read_config_file(mapping_config_name)
+
+    result = ''
+    try:
+        registry_map = parsed_yaml['registryMap']
+        for repo, registry in registry_map.items():
+            if repo == repo_name:
+                result = registry
+                break
+    except KeyError:
+        logging.error(f"Can't find 'registryMap' section in mapping config: {mapping_config_name}")
+        sys.exit(1)
+
+    if result == '':
+        logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
+        sys.exit(1)
+
+    logging.info(f"found registry mapping for repo name {repo_name}: {result}")
+    return result
+
+
+def read_config_file(config_name: str) -> yaml:
+    with open(config_name, 'r') as stream:
         try:
-            parsed_yaml = yaml.safe_load(stream)
+            return yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             logging.error(f"Can't parse yaml file: {exc}")
-
-        result = ''
-        try:
-            registry_map = parsed_yaml['registryMap']
-            for repo, registry in registry_map.items():
-                if repo == repo_name:
-                    result = registry
-                    break
-        except KeyError:
-            logging.error(f"Can't find 'registryMap' section in mapping config: {mapping_config_name}")
-            sys.exit(1)
-
-        if result == '':
-            logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
-            sys.exit(1)
-
-        logging.info(f"found registry mapping for repo name {repo_name}: {result}")
-        return result
 
 
 def main():
