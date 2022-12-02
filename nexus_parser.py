@@ -86,7 +86,10 @@ class NexusParser:
                     return self.docker_images
         else:
             logging.error(f'Wrong http server status: {resp.status}')
-            logging.error(f'Server respond with answer: {resp.data}')
+            # Print response body if exists
+            data = resp.data.decode("utf-8")
+            if len(data) > 0:
+                logging.error(f'Server respond with answer: {data}')
 
         return self.docker_images
 
