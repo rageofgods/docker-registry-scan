@@ -105,7 +105,7 @@ def get_registry_by_repo_name(mapping_config_name: str, repo_name: str):
     return result
 
 
-def read_config_file(config_name: str) -> yaml:
+def read_config_file(config_name: str) -> dict:
     with open(config_name, 'r') as stream:
         try:
             return yaml.safe_load(stream)
