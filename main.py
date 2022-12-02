@@ -77,8 +77,8 @@ def get_env_vars() -> dict:
     try:
         result['log_level'] = os.environ['DRS_LOG_LEVEL']
     except KeyError:
-        result['log_level'] = 'WARNING'
-        logging.warning('NO env.DRS_LOG_LEVEL was set. Default to [WARNING]')
+        result['log_level'] = 'INFO'
+        logging.warning('NO env.DRS_LOG_LEVEL was set. Default to INFO.')
 
     return result
 
