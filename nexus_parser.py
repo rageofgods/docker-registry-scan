@@ -20,7 +20,7 @@ class NexusParser:
     def init_pool_manager(self, retries) -> urllib3.poolmanager.PoolManager:
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
-    def __get_comps(self, continuation_token='') -> urllib3.request.RequestMethods:
+    def __get_comp(self, continuation_token='') -> urllib3.request.RequestMethods:
         if self.server_user == '' and self.server_pass == '':
             self.__setup_headers([self.__set_accept_header()])
             logging.debug('No auth credentials provided. Switching to anonymous')
@@ -57,9 +57,9 @@ class NexusParser:
         resp: urllib3.request.RequestMethods
 
         if continuation_token == '':
-            resp = self.__get_comps()
+            resp = self.__get_comp()
         else:
-            resp = self.__get_comps(continuation_token)
+            resp = self.__get_comp(continuation_token)
 
         if resp.status == 200:
             j = json.loads(resp.data.decode('utf-8'))
