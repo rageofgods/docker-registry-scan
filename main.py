@@ -118,7 +118,10 @@ def main():
     env_vars = get_env_vars()
     # Get script execution command line arguments
     args = get_args()
-    logging.add(sys.stdout, level=env_vars['log_level'])
+
+    # Setup logger
+    logging.remove(0)
+    logging.add(sys.stdout, level=str(env_vars['log_level']).upper())
 
     # Querying nexus server for some interesting data
     ic = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
