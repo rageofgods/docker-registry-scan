@@ -28,7 +28,7 @@ class NexusParser:
             self.__setup_headers([self.__set_accept_header(), self.__set_auth_header()])
             logging.debug('Setting up auth headers')
 
-        if not continuation_token:
+        if continuation_token == '':
             try:
                 return self.pool_manager.request('GET',
                                                  f'{self.__get_server_url().strip("/")}{self.__repo_comp_urn()}',
@@ -56,7 +56,7 @@ class NexusParser:
     def get_all_comps(self, continuation_token='', processed_items=0) -> dict:
         resp: urllib3.request.RequestMethods
 
-        if not continuation_token:
+        if continuation_token == '':
             resp = self.__get_comps()
         else:
             resp = self.__get_comps(continuation_token)
@@ -67,6 +67,7 @@ class NexusParser:
                 for item in j['items']:
                     try:
                         if item['format'] == 'docker':
+                            logging.debug(f"Adding image: {item['name']}:{item['version']}")
                             self.docker_images[item['name']] = item['version']
                         else:
                             logging.error(f'wrong format for target component: {item["format"]}')
@@ -86,6 +87,7 @@ class NexusParser:
             logging.error(f'Wrong http server status: {resp.status}')
             logging.error(f'Server respond with answer: {resp.data}')
 
+        logging.debug(f'Total images found: {len(self.docker_images)}')
         return self.docker_images
 
     def __setup_headers(self, headers: list):
