@@ -37,7 +37,7 @@ def get_args() -> argparse.Namespace:
                         help="Path to clair binary control file 'clairctl'")
     parser.add_argument("-a", "--clair-async-num",
                         dest="clair_async_num",
-                        default="3",
+                        default="10",
                         help="Set clair maximum async workers")
     parser.add_argument("-m", "--mapping-config",
                         dest="mapping_config",
