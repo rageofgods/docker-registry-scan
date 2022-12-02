@@ -124,6 +124,9 @@ def main():
     ic = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
     ic.init_pool_manager(retries=3)
     logging.info('Start analyzing remote docker registry...')
+    # Set required http headers
+    ic.setup_headers()
+    # Query Nexus for interesting data
     nexus_results = ic.get_all_comps()
     logging.debug(f'Total images found: {len(nexus_results)}')
     logging.info('Analyzing complete.')

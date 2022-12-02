@@ -21,13 +21,6 @@ class NexusParser:
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
     def __get_comp(self, continuation_token='') -> urllib3.request.RequestMethods:
-        if self.server_user == '' and self.server_pass == '':
-            self.__setup_headers([self.__set_accept_header()])
-            logging.debug('No auth credentials provided. Switching to anonymous')
-        else:
-            self.__setup_headers([self.__set_accept_header(), self.__set_auth_header()])
-            logging.debug('Setting up auth headers')
-
         if continuation_token == '':
             try:
                 return self.pool_manager.request('GET',
@@ -45,6 +38,14 @@ class NexusParser:
             except urllib3.exceptions.HTTPError:
                 # TODO: handle errors
                 logging.error('HTTP_ERROR')
+
+    def setup_headers(self):
+        if self.server_user == '' and self.server_pass == '':
+            self.__set_headers([self.__set_accept_header()])
+            logging.debug('No auth credentials provided. Switching to anonymous')
+        else:
+            self.__set_headers([self.__set_accept_header(), self.__set_auth_header()])
+            logging.debug('Setting up auth headers')
 
     def __get_server_url(self) -> str:
         url = urlparse(self.server_name)
@@ -89,7 +90,7 @@ class NexusParser:
 
         return self.docker_images
 
-    def __setup_headers(self, headers: list):
+    def __set_headers(self, headers: list):
         for h in headers:
             self.http_headers = self.http_headers | h
 
