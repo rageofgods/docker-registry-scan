@@ -131,9 +131,13 @@ def main():
     ic.setup_headers()
     # Query Nexus for interesting data
     nexus_results = ic.get_all_comps()
-    logging.debug(f'Total images found: {len({list(value.keys())[0] for (key, value) in nexus_results.items()})}')
-    logging.debug(f'Total image tags found: {len(nexus_results)}')
     logging.info('Analyzing complete.')
+    logging.info(f'Total images found: {len({list(value.keys())[0] for (key, value) in nexus_results.items()})}')
+    logging.info(f'Total image tags found: {len(nexus_results)}')
+
+    if len(nexus_results) == 0:
+        logging.warning(f'Nothing to process. Exiting.')
+        sys.exit(0)
 
     # Init clair constructor
     clair = ClairChecker(server_name=args.clair_server,

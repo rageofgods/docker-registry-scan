@@ -1,7 +1,11 @@
 import json
+import logging
+import sys
+
 from loguru import logger as logging
 import urllib3
 from urllib.parse import urlparse
+import urllib3.exceptions as http_ex
 
 
 class NexusParser:
@@ -21,23 +25,22 @@ class NexusParser:
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
     def __get_comp(self, continuation_token='') -> urllib3.request.RequestMethods:
+        # Get server url
+        srv_url = self.__get_server_url().strip("/")
+
+        # A little python madness here. We don't need to define func local variable "http_request"
+        # before is\else block below because 'if\else' statement don't count as 'scope' in python world ¯\_(ツ)_/¯
         if continuation_token == '':
-            try:
-                return self.pool_manager.request('GET',
-                                                 f'{self.__get_server_url().strip("/")}{self.__repo_comp_urn()}',
-                                                 headers=self.http_headers)
-            except urllib3.exceptions.HTTPError:
-                # TODO: handle errors
-                logging.error('HTTP ERROR')
+            http_request = f'{srv_url}{self.__repo_comp_urn()}'
         else:
-            try:
-                return self.pool_manager.request('GET',
-                                                 f'{self.__get_server_url().strip("/")}'
-                                                 f'{self.__repo_comp_urn(continuation_token)}',
-                                                 headers=self.http_headers)
-            except urllib3.exceptions.HTTPError:
-                # TODO: handle errors
-                logging.error('HTTP_ERROR')
+            http_request = f'{srv_url}{self.__repo_comp_urn(continuation_token)}'
+
+        try:
+            return self.pool_manager.request('GET', http_request, headers=self.http_headers)
+        except http_ex.HTTPError:
+            logging.error(f'HTTP error occurred while connecting to server {srv_url}')
+        except http_ex.ConnectTimeoutError:
+            logging.error(f'Timeout is occurred while connecting to server {srv_url}')
 
     def setup_headers(self):
         if self.server_user == '' and self.server_pass == '':
@@ -62,7 +65,13 @@ class NexusParser:
         else:
             resp = self.__get_comp(continuation_token)
 
-        if resp.status == 200:
+        try:
+            status = resp.status
+        except AttributeError:
+            logging.error(f"Server returns no status in the request. Stop processing.")
+            return self.docker_images
+
+        if status == 200:
             j = json.loads(resp.data.decode('utf-8'))
             if 'items' in j:
                 for item in j['items']:
