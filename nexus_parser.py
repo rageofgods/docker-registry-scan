@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 
 from loguru import logger as logging
 import urllib3
@@ -28,7 +27,7 @@ class NexusParser:
         # Get server url
         srv_url = self.__get_server_url().strip("/")
 
-        # A little python madness here. We don't need to define func local variable "http_request"
+        # A little python madness here (and below too). We don't need to define func local variable "http_request"
         # before is\else block below because 'if\else' statement don't count as 'scope' in python world ¯\_(ツ)_/¯
         if continuation_token == '':
             http_request = f'{srv_url}{self.__repo_comp_urn()}'
@@ -37,7 +36,6 @@ class NexusParser:
 
         try:
             return self.pool_manager.request('GET', http_request, headers=self.http_headers)
-
         except http_ex.MaxRetryError:
             logging.error(f'Max retries exceeded while connecting to server {srv_url}')
         except http_ex.ConnectTimeoutError:
@@ -63,8 +61,6 @@ class NexusParser:
         return str(url.geturl())
 
     def get_all_comps(self, continuation_token='', processed_items=0) -> dict:
-        resp: urllib3.request.RequestMethods
-
         if continuation_token == '':
             resp = self.__get_comp()
         else:

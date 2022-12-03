@@ -10,7 +10,8 @@ from os.path import basename as path_basename, join as path_join
 class ClairChecker:
     reports_folder_name = 'clair-reports'
 
-    def __init__(self, server_name,
+    def __init__(self,
+                 server_name,
                  binary_path='clairctl',
                  report_format='json',
                  reports_path='/tmp/reports',
