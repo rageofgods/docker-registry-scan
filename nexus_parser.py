@@ -110,7 +110,8 @@ class NexusParser:
     def __set_auth_header(self) -> urllib3.util.request:
         return urllib3.make_headers(basic_auth=f'{self.server_user}:{self.server_pass}')
 
-    def __set_accept_header(self) -> dict:
+    @staticmethod
+    def __set_accept_header() -> dict:
         return {'accept': 'application/json'}
 
     def __repo_comp_urn(self, continuation_token='') -> str:

@@ -39,7 +39,8 @@ class ClairChecker:
         # output = child.stdout.read()
         # print(output)
 
-    def get_image_full_path(self, registry_url: str, image_name: str, image_tag: str):
+    @staticmethod
+    def get_image_full_path(registry_url: str, image_name: str, image_tag: str):
         image_full_path = f'{registry_url.strip("/")}/{image_name}:{image_tag}'
         logging.debug(f'docker image full path is: {image_full_path}')
         return image_full_path
