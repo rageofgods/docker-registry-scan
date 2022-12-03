@@ -1,7 +1,7 @@
 # docker-registry-scan
 Just a simple tool to check target nexus docker registry images with clair in ad-hoc manner
 
-
+### Usage:
 ```
 usage: main.py [-h] -n NEXUS_SERVER -r NEXUS_REPO -c CLAIR_SERVER [-p CLAIR_REPORTS_PATH] [-f CLAIR_REPORTS_FORMAT] [-b CLAIR_BINARY_PATH] [-a CLAIR_ASYNC_NUM] [-m MAPPING_CONFIG]
 
@@ -23,4 +23,11 @@ optional arguments:
                         Set clair maximum async workers
   -m MAPPING_CONFIG, --mapping-config MAPPING_CONFIG
                         Path to yaml config with registry name to repository name mapping
+```
+
+### Supported environment variables:
+```
+DRS_USER - Configure username for nexus server authentication
+DRS_PASS - Configure password for nexus server authenication
+DRS_LOG_LEVEL - Setup severity logging level for stdout output (Default: INFO)
 ```
