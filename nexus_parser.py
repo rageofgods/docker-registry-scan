@@ -27,8 +27,6 @@ class NexusParser:
         # Get server url
         srv_url = self.__get_server_url().strip("/")
 
-        # A little python madness here (and below too). We don't need to define func local variable "http_request"
-        # before is\else block below because 'if\else' statement don't count as 'scope' in python world ¯\_(ツ)_/¯
         if continuation_token == '':
             http_request = f'{srv_url}{self.__repo_comp_urn()}'
         else:
