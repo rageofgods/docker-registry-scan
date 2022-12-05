@@ -58,7 +58,10 @@ class NexusParser:
 
         return str(url.geturl())
 
-    def get_all_comps(self, continuation_token='', processed_items=0) -> dict:
+    def get_results(self) -> dict:
+        return self.docker_images
+
+    def analyse_all_comps(self, continuation_token='', processed_items=0) -> None:
         if continuation_token == '':
             resp = self.__get_comp()
         else:
@@ -68,7 +71,7 @@ class NexusParser:
             status = resp.status
         except AttributeError:
             logging.error(f"Server returns no status in the request. Stop processing.")
-            return self.docker_images
+            return
 
         if status == 200:
             j = json.loads(resp.data.decode('utf-8'))
@@ -80,18 +83,18 @@ class NexusParser:
                             self.docker_images[item['id']] = {item['name']: item['version']}
                         else:
                             logging.error(f'wrong format for target component: {item["format"]}')
-                            return self.docker_images
+                            return
                     except KeyError:
                         logging.error("'format' key not found in server response.")
-                        return self.docker_images
+                        return
 
             if 'continuationToken' in j:
                 if j['continuationToken'] is not None:
                     processed_items += len(j['items'])
                     logging.debug(f'Continue... Items processed: {processed_items}')
-                    self.get_all_comps(j['continuationToken'], processed_items)
+                    self.analyse_all_comps(j['continuationToken'], processed_items)
                 else:
-                    return self.docker_images
+                    return
         else:
             logging.error(f'Wrong http server status: {resp.status}')
             # Print response body if exists
@@ -99,7 +102,7 @@ class NexusParser:
             if len(data) > 0:
                 logging.error(f'Server respond with answer: {data}')
 
-        return self.docker_images
+        return
 
     def __set_headers(self, headers: list):
         for h in headers:

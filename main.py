@@ -17,13 +17,16 @@ def main():
     logging.add(sys.stdout, level=str(env_vars['log_level']).upper())
 
     # Querying nexus server for some interesting data
-    ic = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
-    ic.init_pool_manager(retries=3)
+    np = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
+    np.init_pool_manager(retries=3)
     logging.info('Start analyzing remote docker registry...')
     # Set required http headers
-    ic.setup_headers()
+    np.setup_headers()
     # Query Nexus for interesting data
-    nexus_results = ic.get_all_comps()
+    np.analyse_all_comps()
+    # Get results
+    nexus_results = np.get_results()
+
     logging.info('Analyzing complete.')
     logging.info(f'Total images found: {len({list(value.keys())[0] for (key, value) in nexus_results.items()})}')
     logging.info(f'Total image tags found: {len(nexus_results)}')
