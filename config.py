@@ -98,7 +98,7 @@ def get_registry_by_repo_name(mapping_config_name: str, repo_name: str):
         logging.error(f"Can't find repository name: {repo_name} in mapping config: {mapping_config_name}")
         sys.exit(1)
 
-    logging.info(f"found registry mapping for repo name {repo_name}: {result}")
+    logging.debug(f"found registry mapping for repo name {repo_name}: {result}")
     return result
 
 

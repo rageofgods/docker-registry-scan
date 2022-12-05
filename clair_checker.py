@@ -23,7 +23,6 @@ class ClairChecker:
         self.reports_file_name = reports_file_name
 
     def scan(self, image_to_scan: str, report_file_name: str):
-        self.__create_report_dir()
         action = 'report'
 
         cmd = f'{self.binary_path} ' \
@@ -46,9 +45,6 @@ class ClairChecker:
         return image_full_path
 
     def archive_reports(self):
-        # Create reports directory
-        self.__create_report_dir()
-
         # Check if target clair dir is exists
         if not os.path.exists(self.__get_reports_path()):
             logging.warning(f'Clair reports dir not found: {self.reports_folder_name}. Skipping archiving')
@@ -68,7 +64,7 @@ class ClairChecker:
                             # Removing empty report file
                             os.remove(file_path)
                             continue
-                        logging.info(f'Archiving file: {file_path}')
+                        logging.debug(f'Archiving file: {file_path}')
                         suc_archived_files_count += 1
                         zip_writer.write(file_path, path_basename(file_path))
                 else:
@@ -88,16 +84,16 @@ class ClairChecker:
     def gen_report_file_name(self, image_name: str, image_tag: str) -> str:
         return f'{image_name.replace("/", "_")}--{image_tag}.{self.report_format}'
 
-    def __create_report_dir(self):
+    def create_report_dir(self):
         if not os.path.exists(self.reports_path):
-            logging.info(f'Creating archive reports directory: {self.reports_path}')
+            logging.debug(f'Creating archive reports directory: {self.reports_path}')
             os.makedirs(self.reports_path)
         else:
-            logging.info(f'Archive reports target directory {self.reports_path} already exists. Will write into it.')
+            logging.debug(f'Archive reports target directory {self.reports_path} already exists. Will write into it.')
 
         clair_folder_name = self.__get_reports_path()
         if not os.path.exists(clair_folder_name):
-            logging.info(f'Creating reports directory: {clair_folder_name}')
+            logging.debug(f'Creating reports directory: {clair_folder_name}')
             os.makedirs(clair_folder_name)
         else:
-            logging.info(f'Reports target directory {clair_folder_name} already exists. Will write report into it.')
+            logging.debug(f'Reports target directory {clair_folder_name} already exists. Will write report into it.')

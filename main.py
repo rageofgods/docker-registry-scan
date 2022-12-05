@@ -43,6 +43,10 @@ def main():
                          binary_path=args.clair_binary_path)
     # Create new worker pool for spawned processes and limit bucket size
     wp = WorkerPool(limit=int(args.clair_async_num))
+
+    # Create reports dirs
+    clair.create_report_dir()
+
     # Start image checking with clair
     for image_name_tag in nexus_results.values():
         image_name = list(image_name_tag.keys())[0]
