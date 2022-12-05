@@ -66,6 +66,8 @@ class ClairChecker:
                         logging.debug(f'Archiving file: {file_path}')
                         suc_archived_files_count += 1
                         zip_writer.write(file_path, path_basename(file_path))
+                        # Clean up report file
+                        os.remove(file_path)
                 else:
                     logging.warning(f'Nothing to archive. Reports directory {self.reports_path} is empty ')
 
