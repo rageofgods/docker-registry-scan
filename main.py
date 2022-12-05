@@ -48,6 +48,7 @@ def main():
     clair.create_report_dir()
 
     # Start image checking with clair
+    logging.info("Start running clair scans for target image tags...")
     for image_name_tag in nexus_results.values():
         image_name = list(image_name_tag.keys())[0]
         tag_name = list(image_name_tag.values())[0]
@@ -57,8 +58,10 @@ def main():
                         clair.gen_report_file_name(image_name, tag_name)))
     # Clean up
     wp.end_pool()
+    logging.info("All clair scan is completed. Now Archiving results...")
     # Archiving reports
     clair.archive_reports()
+    logging.info("All tasks done. Exiting now")
 
 
 if __name__ == '__main__':

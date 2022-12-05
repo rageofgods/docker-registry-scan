@@ -24,7 +24,6 @@ class ClairChecker:
 
     def scan(self, image_to_scan: str, report_file_name: str):
         action = 'report'
-
         cmd = f'{self.binary_path} ' \
               f'{action} --out={self.report_format} ' \
               f'--host {self.server_name} {image_to_scan} > {self.__get_reports_path()}/{report_file_name}'
@@ -74,6 +73,8 @@ class ClairChecker:
             logging.error(f'Clair report archive contains zero files count.'
                           f' Something went wrong with report generation?')
             sys.exit(1)
+        else:
+            logging.info(f"Archiving complete. Total archived reports: {suc_archived_files_count}")
 
     def __get_reports_path(self):
         return path_join(self.reports_path, self.reports_folder_name)
