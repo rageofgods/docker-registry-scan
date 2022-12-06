@@ -14,13 +14,11 @@ class NexusParser:
     http_headers = {}
     docker_images = {}
 
-    def __init__(self, server_name, repo_name, server_user='', server_pass=''):
+    def __init__(self, server_name, repo_name, server_user='', server_pass='', retries=3):
         self.server_name = server_name
         self.server_user = server_user
         self.server_pass = server_pass
         self.repo_name = repo_name
-
-    def init_pool_manager(self, retries=3):
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
     def __get_comp(self, continuation_token='') -> urllib3.request.RequestMethods:
