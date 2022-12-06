@@ -30,8 +30,9 @@ class NexusParser:
         else:
             http_request = f'{srv_url}{self.__repo_comp_urn(continuation_token)}'
 
+        response = None
         try:
-            return self.pool_manager.request('GET', http_request, headers=self.http_headers)
+            response = self.pool_manager.request('GET', http_request, headers=self.http_headers)
         except http_ex.MaxRetryError:
             logging.error(f'Max retries exceeded while connecting to server {srv_url}')
         except http_ex.ConnectTimeoutError:
@@ -40,6 +41,8 @@ class NexusParser:
             logging.error(f'HTTP error occurred while connecting to server {srv_url}')
         except Exception as e:
             logging.error(f'Non specific http request error: {e}')
+
+        return response
 
     def setup_headers(self):
         if self.server_user == '' and self.server_pass == '':
