@@ -20,7 +20,7 @@ class NexusParser:
         self.server_pass = server_pass
         self.repo_name = repo_name
 
-    def init_pool_manager(self, retries):
+    def init_pool_manager(self, retries=3):
         self.pool_manager = urllib3.PoolManager(retries=urllib3.Retry(connect=retries))
 
     def __get_comp(self, continuation_token='') -> urllib3.request.RequestMethods:

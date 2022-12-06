@@ -18,7 +18,7 @@ def main():
 
     # Querying nexus server for some interesting data
     np = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
-    np.init_pool_manager(retries=3)
+    np.init_pool_manager()
     logging.info('Start analyzing remote docker registry...')
     # Set required http headers
     np.setup_headers()
