@@ -5,10 +5,14 @@ from zipfile import ZipFile
 from loguru import logger as logging
 import os
 from os.path import basename as path_basename, join as path_join
+from retry import retry
 
 
 class ClairChecker:
     reports_folder_name = 'clair-reports'
+    RETRY_DELAY_TIME = 3
+    RETRY_COUNT = 5
+    RETRY_BACKOFF_MULTIPLIER = 2
 
     def __init__(self,
                  server_name,
@@ -22,6 +26,7 @@ class ClairChecker:
         self.reports_path = reports_path
         self.reports_file_name = reports_file_name
 
+    @retry(delay=RETRY_DELAY_TIME, tries=RETRY_COUNT, backoff=RETRY_BACKOFF_MULTIPLIER, logger=logging)
     def scan(self, image_to_scan: str, report_file_name: str):
         action = 'report'
         cmd = f'{self.binary_path} ' \
