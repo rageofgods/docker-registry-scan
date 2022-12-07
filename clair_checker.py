@@ -11,7 +11,7 @@ from retry import retry
 class ClairChecker:
     reports_folder_name = 'clair-reports'
     RETRY_DELAY_TIME = 3
-    RETRY_COUNT = 5
+    RETRY_COUNT = 3
     RETRY_BACKOFF_MULTIPLIER = 2
 
     def __init__(self,
@@ -26,7 +26,11 @@ class ClairChecker:
         self.reports_path = reports_path
         self.reports_file_name = reports_file_name
 
-    @retry(delay=RETRY_DELAY_TIME, tries=RETRY_COUNT, backoff=RETRY_BACKOFF_MULTIPLIER, logger=logging)
+    @retry(exceptions=Exception,
+           delay=RETRY_DELAY_TIME,
+           tries=RETRY_COUNT,
+           backoff=RETRY_BACKOFF_MULTIPLIER,
+           logger=logging)
     def scan(self, image_to_scan: str, report_file_name: str):
         action = 'report'
         cmd = f'{self.binary_path} ' \
@@ -39,6 +43,7 @@ class ClairChecker:
 
         if child.returncode != 0:
             logging.error(f"Child process return non zero exit code. Called: {cmd}")
+            raise Exception("Child process return non zero exit code")
         # output = child.stdout.read()
         # print(output)
 
