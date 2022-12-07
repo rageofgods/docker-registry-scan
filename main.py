@@ -12,6 +12,9 @@ def main():
     # Get script execution command line arguments
     args = config.get_args()
 
+    # Get 'real' registry name following mapping config file
+    registry_name = config.get_registry_by_repo_name(args.mapping_config, args.nexus_repo)
+
     # Setup logger
     logging.remove(0)
     logging.add(sys.stdout, level=str(env_vars['log_level']).upper())
@@ -52,8 +55,7 @@ def main():
         image_name = list(image_name_tag.keys())[0]
         tag_name = list(image_name_tag.values())[0]
         wp.add_to_pool(clair.scan,
-                       (ClairChecker.get_image_full_path(
-                           config.get_registry_by_repo_name(args.mapping_config, args.nexus_repo), image_name, tag_name),
+                       (ClairChecker.get_image_full_path(registry_name, image_name, tag_name),
                         clair.gen_report_file_name(image_name, tag_name)))
     # Clean up
     wp.end_pool()
