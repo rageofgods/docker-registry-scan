@@ -12,12 +12,12 @@ def main():
     # Get script execution command line arguments
     args = config.get_args()
 
-    # Get 'real' registry name following mapping config file
-    registry_name = config.get_registry_by_repo_name(args.mapping_config, args.nexus_repo)
-
     # Setup logger
     logging.remove(0)
     logging.add(sys.stdout, level=str(env_vars['log_level']).upper())
+
+    # Get 'real' registry name following mapping config file
+    registry_name = config.get_registry_by_repo_name(args.mapping_config, args.nexus_repo)
 
     # Querying nexus server for some interesting data
     np = NexusParser(args.nexus_server, args.nexus_repo, env_vars['username'], env_vars['password'])
